@@ -9,17 +9,15 @@ const port = process.env.PORT||5000
 app.use(cors())
 app.use(morgan('dev'))
 app.use(bodyParser.json())
-app.use(cors())
+
 app.disable('x-powered-by')
 
-const movieRoutes = require('./routes/movies_route.js')
-app.use('/movies', movieRoutes)
+app.use('/movies', require('./routes/movies_route.js'))
 
 app.use((err, req, res, next) => {
     const errorMessage = {}
     console.log(err);
     
-
     if(process.env.NODE_ENV !== 'production' && err.stack)
         errorMessage.stack = err.stack
 

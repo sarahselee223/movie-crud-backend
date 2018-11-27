@@ -4,12 +4,12 @@ const movieController = require('../controls/movies_control.js')
 
 router.get('/', movieController.getAll)
 
-router.get('/:id', movieController.getOne)
+router.get('/:movieId', movieController.getOne)
 
 router.post('/', movieController.create)
 
-router.put('/:id', movieController.editOne)
+router.put('/:movieId', movieController.editOne)
 
-router.delete('/:id', movieController.deleteOne)
+router.delete('/:movieId', movieController.deleteOne)
 
 module.exports = router

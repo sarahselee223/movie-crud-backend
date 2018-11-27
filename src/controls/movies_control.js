@@ -1,63 +1,77 @@
-const model = require('../models/movies_model.js')
+const model = require('../models/movies_model')
 
-function getAll (req, res, next){
-    const result = model.getAll()
-    res.status(200).json(result)
-}
-
-function getOne (req, res, next){
-    const result = model.getOne(req.params.id)
-    if(result.errors){
-        return next({ status: 400, message: `Could not get a movie`, errors: result.errors  })
-    }
-    res.status(200).json(result) 
-}
-
-function create (req, res, next){
-    const result = model.create(
-        req.body.title,
-        req.body.director,
-        req.body.year,
-        req.body.rating,
-        req.body.url,
-    )
-
-    if(result.errors){
-        return next({ status: 400, message: `Could not create new movie`, errors: result.errors })
-    }
-    res.status(201).json(result)
-}
-
-function deleteOne (req, res, next){
-    const result = model.deleteOne(req.params.id)
-    if(result.errors){
-        return next({ status: 400, message: `Could not delete a movie`, errors: result.errors })
-    }
-    res.status(201).json(result)
-}
-
-
-function editOne (req, res, next){
-    const result = model.editOne(
-        req.params.id,
-        req.body.title,
-        req.body.director,
-        req.body.year,
-        req.body.rating,
-        req.body.url,
-    )
-    if(result.errors){
-        return next({ status: 400, message: `Could not update a movie`, errors: result.errors })
-    }
-    res.status(201).json(result)
-}
-
+function getAll(req, res, next){
+    model.getAll()
+    .then(function(data){
+      res.send({ data })
+    })
+    .catch(next)
+  }
   
-
-module.exports = {
-  getAll,
-  getOne,
-  create,
-  deleteOne,
-  editOne
-}
+  function getOne(req, res, next){
+    model.getOne(parseInt(req.params.movieId))
+    .then(function(data){
+      if(data) {
+        return res.send({ data })
+      }
+      else {
+        throw ({ status: 404, message: 'Movie Not Found' })
+      }
+    })
+    .catch(next)
+  }
+  
+  function create(req, res, next){
+    if(!req.body.title || !req.body.year || !req.body.rating || !req.body.url || !req.body.director){
+      return next({ status: 400, message:'Bad Request'})
+    }
+  
+    model.create(req.body)
+    .then(function(data){
+      res.status(201).send({ data })
+    })
+    .catch(next)
+  }
+  
+  function editOne(req, res, next){
+    if(!req.body.title || !req.body.year || !req.body.rating || !req.body.url || !req.body.director){
+      return next({ status: 400, message:'Bad Request'})
+    }
+  
+    model.update(parseInt(req.params.movieId), req.body)
+    .then(function(data){
+      res.send({ data })
+    })
+    .catch(next)
+  }
+  
+  function deleteOne(req, res, next){
+    model.remove(parseInt(req.params.movieId))
+    .then(function(data){
+      res.send({ data })
+    })
+    .catch(next)
+  }
+  
+  function checkForMovie(req, res, next){
+    model.getOne(parseInt(req.params.movieId))
+    .then(function(data){
+      if(!data) {
+        throw ({ status: 404, message: 'Movie Not Found' })
+      }
+      else {
+        next()
+      }
+    })
+    .catch(next)
+  }
+  
+  module.exports = {
+    getAll,
+    getOne,
+    create,
+    editOne,
+    deleteOne,
+    checkForMovie
+  }
+  
